@@ -25,7 +25,6 @@ function cli.cleanup()
   cli = nil
 end
 
--- finalize setup
 cli._VERSION = "2.5-4"
 
 return cli
