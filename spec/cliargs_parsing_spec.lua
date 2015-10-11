@@ -3,6 +3,7 @@ describe("Testing cliargs library parsing commandlines", function()
 
   before_each(function()
     cli = require("cliargs.core")()
+    cli:set_error_handler(function(msg) error(msg) end)
   end)
 
   -- TODO, move to feature specs
@@ -37,12 +38,11 @@ describe("Testing cliargs library parsing commandlines", function()
     end)
 
     it("tests required argument callback returning error", function()
-      cli:set_name('myapp')
       cli:add_argument("ARG", "arg description", callback_fail)
-      local result, err = cli:parse({ "arg_val" }, true --[[no print]])
-      assert(result == nil, "Failure in callback returns nil")
-      assert(type(err) == "string", "Expected an error string")
-      assert.are.equal(err, "myapp: error: bad argument for ARG; re-run with --help for usage.")
+
+      assert.error_matches(function()
+        cli:parse({ "arg_val" })
+      end, 'bad argument for ARG')
     end)
 
     it("tests many required arguments", function()
@@ -69,10 +69,10 @@ describe("Testing cliargs library parsing commandlines", function()
     it("tests optional argument callback returning error", function()
       cli:set_name('myapp')
       cli:optarg("OPTARG", "optinoal arg description", nil, 1, callback_fail)
-      local result, err = cli:parse({ "opt_arg" }, true --[[no print]])
-      assert(result == nil, "Failure in callback returns nil")
-      assert(type(err) == "string", "Expected an error string")
-      assert.are.equal(err, "myapp: error: bad argument for OPTARG; re-run with --help for usage.")
+
+      assert.error_matches(function()
+        cli:parse({ "opt_arg" })
+      end, 'bad argument for OPTARG')
     end)
 
     it("tests many optional arguments", function()
